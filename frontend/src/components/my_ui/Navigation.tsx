@@ -7,7 +7,8 @@ export default function NavigationBar() {
 
 
     return (
-        <nav className="fixed top-1 left-1/2 z-50 -translate-x-1/2 w-[90%]  bg-white/30 dark:bg-[#272727] backdrop-blur-sm border border-gray-400 dark:border-gray-500 shadow-md rounded-2xl px-6 py-3 flex items-center justify-between">
+        <nav className="fixed top-1 left-1/2 z-50 -translate-x-1/2 w-[90%] bg-white/10 dark:bg-black/10 backdrop-blur-sm border border-gray-400/40 dark:border-gray-500/40 shadow-md rounded-2xl px-6 py-3 flex items-center justify-between"
+>
             {/* Left Side: Logo and Name */}
             <Link href="/">
                 <div className="flex items-center space-x-3 cursor-pointer">
