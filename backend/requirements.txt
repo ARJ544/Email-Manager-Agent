@@ -15,12 +15,16 @@ fastapi==0.123.4
 filetype==1.2.0
 google-ai-generativelanguage==0.9.0
 google-api-core==2.28.1
-google-auth==2.43.0
+google-api-python-client==2.187.0
+google-auth==2.41.1
+google-auth-httplib2==0.2.1
+google-auth-oauthlib==1.2.3
 googleapis-common-protos==1.72.0
 grpcio==1.76.0
 grpcio-status==1.76.0
 h11==0.16.0
 httpcore==1.0.9
+httplib2==0.31.0
 httpx==0.28.1
 idna==3.11
 ipykernel==7.1.0
@@ -41,6 +45,7 @@ langgraph-sdk==0.2.12
 langsmith==0.4.49
 matplotlib-inline==0.2.1
 nest-asyncio==1.6.0
+oauthlib==3.3.1
 orjson==3.11.4
 ormsgpack==1.12.0
 packaging==25.0
@@ -56,11 +61,13 @@ pyasn1_modules==0.4.2
 pydantic==2.12.5
 pydantic_core==2.41.5
 Pygments==2.19.2
+pyparsing==3.2.5
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 PyYAML==6.0.3
 pyzmq==27.1.0
 requests==2.32.5
+requests-oauthlib==2.0.0
 requests-toolbelt==1.0.0
 rsa==4.9.1
 six==1.17.0
@@ -71,6 +78,7 @@ tornado==6.5.2
 traitlets==5.14.3
 typing-inspection==0.4.2
 typing_extensions==4.15.0
+uritemplate==4.2.0
 urllib3==2.5.0
 uvicorn==0.38.0
 wcwidth==0.2.14
