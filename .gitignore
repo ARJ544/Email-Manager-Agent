@@ -38,8 +38,4 @@ htmlcov/
 dist/
 build/
 
-# FastAPI-specific
-# Any generated documentation or schema files you don't want tracked
-# For example, if you generate OpenAPI schemas and don't want them in Git
-# openapi.json
-# docs/
+credentials.json
