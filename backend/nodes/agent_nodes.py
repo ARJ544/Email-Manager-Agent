@@ -1,6 +1,6 @@
 from langgraph.graph import MessagesState
 from langchain_core.messages import SystemMessage, ToolMessage, AIMessage
-from backend.config_llm import llm_with_tools
+from config_llm import llm_with_tools
 
 
 system_msg = SystemMessage(content=
