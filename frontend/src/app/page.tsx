@@ -29,6 +29,10 @@ export default function HomePage() {
     fetchTokens();
   }, []);
 
+  // if accestoken null then refreshtoken url
+  // if refresh token null then login url
+  // if both null then login url
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-16 px-4 bg-gray-50 dark:bg-gray-900 transition-colors">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
