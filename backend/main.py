@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from langchain_core.messages import HumanMessage
+from graph.graph import workflow
 
 app = FastAPI()
 
@@ -22,3 +24,6 @@ async def health_check():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=8000)
+    
+# input_data = {"messages": [HumanMessage(content=prompt)]}
+# result = workflow.invoke(input_data)
