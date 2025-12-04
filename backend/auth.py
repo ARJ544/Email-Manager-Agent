@@ -4,7 +4,6 @@ import os
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 GLOBAL_ACCESS_TOKEN = None
-# USER_TOKEN_DB = {}  # Replace with real DB later
 
 
 def get_flow():
@@ -24,6 +23,7 @@ def get_flow():
 
 def generate_auth_url():
     flow = get_flow()
+    flow.redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
     auth_url, state = flow.authorization_url(
         access_type="offline",
         include_granted_scopes="true",
@@ -34,41 +34,40 @@ def generate_auth_url():
 
 def exchange_code_for_tokens(code):
     flow = get_flow()
+    flow.redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
     flow.fetch_token(code=code)
 
     creds: Credentials = flow.credentials
 
-    global GLOBAL_ACCESS_TOKEN
-    GLOBAL_ACCESS_TOKEN = creds.token
+    # global GLOBAL_ACCESS_TOKEN
+    # GLOBAL_ACCESS_TOKEN = creds.token
 
     # if creds.refresh_token:
     #     USER_TOKEN_DB["refresh_token"] = creds.refresh_token
 
     return {
-        "access_token": creds.token,
-        "refresh_token": creds.refresh_token
-    }
+    "access_token": creds.token,
+    "refresh_token": creds.refresh_token if creds.refresh_token else None,
+    "expiry": creds.expiry.isoformat() if creds.expiry else None,
+    "scopes": creds.scopes
+}
 
 
-# def refresh_access_token():
-#     from google.auth.transport.requests import Request
+def refresh_access_token():
+    from google.auth.transport.requests import Request
 
-#     refresh_token = USER_TOKEN_DB.get("refresh_token")
-#     if not refresh_token:
-#         raise Exception("No refresh_token stored. User must login again.")
+    creds = Credentials(
+        token=None,
+        refresh_token=refresh_token,
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+        token_uri="https://oauth2.googleapis.com/token",
+        scopes=[os.getenv("GOOGLE_SCOPES")]
+    )
 
-#     creds = Credentials(
-#         token=None,
-#         refresh_token=refresh_token,
-#         client_id=os.getenv("GOOGLE_CLIENT_ID"),
-#         client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-#         token_uri="https://oauth2.googleapis.com/token",
-#         scopes=[os.getenv("GOOGLE_SCOPES")]
-#     )
+    creds.refresh(Request())
 
-#     creds.refresh(Request())
+    global GLOBAL_ACCESS_TOKEN
+    GLOBAL_ACCESS_TOKEN = creds.token
 
-#     global GLOBAL_ACCESS_TOKEN
-#     GLOBAL_ACCESS_TOKEN = creds.token
-
-#     return creds.token
+    return creds.token
