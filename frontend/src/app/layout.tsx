@@ -37,7 +37,7 @@ export default function RootLayout({
           >
             <NavigationBar />
 
-          <main className="pt-22">{children}</main>
+          <main className="pt-4">{children}</main>
 
         </ThemeProvider>
       </body>
