@@ -1,6 +1,6 @@
 from fastapi import FastAPI,Request, HTTPException
 from fastapi.responses import JSONResponse
-from auth import generate_auth_url, exchange_code_for_tokens
+from auth import generate_auth_url, exchange_code_for_tokens, refresh_access_token
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from fastapi.responses import RedirectResponse
@@ -29,7 +29,7 @@ def login():
 
 @app.get("/auth/google/callback")
 def google_callback(request: Request):
-    """Receive ?code=xyz from Google and exchange it for tokens."""
+    
     code = request.query_params.get("code")
     if not code:
         return JSONResponse({"error": "Missing authorization code"}, status_code=400)
@@ -50,18 +50,41 @@ def google_callback(request: Request):
         samesite="lax",
     )
 
-    # Set refresh_token cookie (HTTP-only, long-lived)
+
     if tokens_expireDate_scope.get("refresh_token"):
         response.set_cookie(
             key="refresh_token",
             value=tokens_expireDate_scope["refresh_token"],
             httponly=True,
             secure=False,
-            max_age=30*24*3600,  # 30 days
+            max_age=7*24*3600,  # 30 days
             samesite="lax",
         )
 
     return response
+
+@app.get("/auth/refreshaccesstoken")
+def refresh_access_tkn(request: Request):
+    
+    refresh_token = request.cookies.get("refresh_token")
+
+    if not refresh_token:
+        raise HTTPException(status_code=400, detail="No refresh token found")
+
+    new_access_token = refresh_access_token(refresh_token)
+
+    response = RedirectResponse(url="http://localhost:3000/")
+    response.set_cookie(
+        key="access_token",
+        value=new_access_token,
+        httponly=True,
+        secure=False,  # True in production
+        max_age=3600,
+        samesite="lax",
+    )
+    return response
+
+# tomorrow to check accestoken expired or not
 
 @app.get("/auth/tokens")
 def get_tokens(request: Request):

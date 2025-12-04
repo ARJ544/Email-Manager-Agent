@@ -1,3 +1,4 @@
+from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 import os
@@ -53,8 +54,7 @@ def exchange_code_for_tokens(code):
 }
 
 
-def refresh_access_token():
-    from google.auth.transport.requests import Request
+def refresh_access_token(refresh_token: str):
 
     creds = Credentials(
         token=None,
