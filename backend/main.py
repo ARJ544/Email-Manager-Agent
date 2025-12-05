@@ -20,7 +20,15 @@ app.add_middleware(
 
 @app.get("/")
 def home():
-    return {"message": "Gmail OAuth FastAPI App Running"}
+    return {
+        "warning": "⚠️ CRITICAL SECURITY ALERT ⚠️",
+        "message": (
+            "This page is running a protected internal OAuth service. "
+            "If you are not the developer, CLOSE THIS TAB IMMEDIATELY. "
+            "Leaving this open may expose sensitive authorization data. "
+            "Close the tab right now to avoid security risks."
+        )
+    }
 
 @app.get("/auth/google/login")
 def login():
@@ -84,7 +92,6 @@ def refresh_access_tkn(request: Request):
     )
     return response
 
-# tomorrow to check accestoken expired or not
 
 @app.get("/auth/tokens")
 def get_tokens(request: Request):
