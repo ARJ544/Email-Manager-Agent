@@ -123,11 +123,11 @@
   }
 }
 ::-webkit-scrollbar {
-  width: 5px; /* Adjust this value for desired thinness */
+  width: 5px;   /* vertical scrollbar */
+  height: 5px;  /* horizontal scrollbar */
 }
 
-
 ::-webkit-scrollbar-thumb {
-  background: #888; /* Customize the thumb color */
-  border-radius: 10px; /* Optional: adds rounded corners to the thumb */
+  background: #888;
+  border-radius: 10px;
 }
