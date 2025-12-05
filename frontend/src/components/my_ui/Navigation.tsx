@@ -22,7 +22,7 @@ export default function NavigationBar() {
                             className="object-cover dark:invert "
                         />
                     </div>
-                    <span className="text-xl font-semibold text-gray-800 dark:invert tracking-tight">
+                    <span className="text-md font-semibold text-gray-800 dark:invert tracking-tight">
                         Email Agent
                     </span>
                 </div>
