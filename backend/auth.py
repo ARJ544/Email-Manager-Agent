@@ -1,11 +1,13 @@
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
+from dotenv import load_dotenv
 import os
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 GLOBAL_ACCESS_TOKEN = None
 
+load_dotenv()
 
 def get_flow():
     return Flow.from_client_config(
