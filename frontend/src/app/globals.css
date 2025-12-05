@@ -118,5 +118,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-y: auto;
+    overflow-x: auto;
   }
+}
+::-webkit-scrollbar {
+  width: 5px; /* Adjust this value for desired thinness */
+}
+
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Customize the thumb color */
+  border-radius: 10px; /* Optional: adds rounded corners to the thumb */
 }
