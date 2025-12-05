@@ -1,9 +1,11 @@
+import random
+import uvicorn
+from datetime import datetime
 from fastapi import FastAPI,Request, HTTPException
 from fastapi.responses import JSONResponse
-from auth import generate_auth_url, exchange_code_for_tokens, refresh_access_token
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 from fastapi.responses import RedirectResponse
+from auth import generate_auth_url, exchange_code_for_tokens, refresh_access_token
 from langchain_core.messages import HumanMessage
 from graph.graph import workflow
 
@@ -18,22 +20,32 @@ app.add_middleware(
 )
 
 
+def generate_threat_code():
+    return f"THR-{random.randint(100000, 999999)}"
+
 @app.get("/")
 def home():
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
+    threat_code = generate_threat_code()
+
     return {
-        "warning": "⚠️ CRITICAL SECURITY ALERT ⚠️",
-        "message": (
-            "This page is running a protected internal OAuth service. "
-            "If you are not the developer, CLOSE THIS TAB IMMEDIATELY. "
-            "Leaving this open may expose sensitive authorization data. "
-            "Close the tab right now to avoid security risks."
-        )
+        "terminal_log": [
+            f"[ {timestamp} ] INITIALIZING SECURITY PROTOCOLS...",
+            f"[ {timestamp} ] Unauthorized client detected.",
+            f"[ {timestamp} ] Running identity scan...",
+            f"[ {timestamp} ] >> Scan Result: UNKNOWN SOURCE",
+            f"[ {timestamp} ] >> Security Handshake: FAILED ❌",
+            f"[ {timestamp} ] >> Threat Level: ELEVATED",
+            f"[ {timestamp} ] >> Assigned Threat Code: {threat_code}",
+            f"[ {timestamp} ] >> Status: CONNECTION NOT TRUSTED",
+            "⚠️ ACTION REQUIRED: CLOSE THIS TAB IMMEDIATELY. ⚠️",
+        ]
     }
+
 
 @app.get("/auth/google/login")
 def login():
     return RedirectResponse(generate_auth_url())
-
 
 @app.get("/auth/google/callback")
 def google_callback(request: Request):
@@ -92,7 +104,6 @@ def refresh_access_tkn(request: Request):
     )
     return response
 
-
 @app.get("/auth/tokens")
 def get_tokens(request: Request):
     """Endpoint to read tokens from cookies and send them to frontend safely."""
@@ -103,8 +114,9 @@ def get_tokens(request: Request):
         "refresh_token": refresh_token
     }
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8000)
     
 # input_data = {"messages": [HumanMessage(content=prompt)]}
 # result = workflow.invoke(input_data)
+
+# deployment
+# uvicorn main:app --host 0.0.0.0 --port $PORT
