@@ -37,7 +37,7 @@ export default function RootLayout({
           >
             <NavigationBar />
 
-          <main className="scroll-smooth bg-gray-50 dark:bg-gray-900 min-h-screen">{children}</main>
+          <main className="scroll-smooth pt-20 bg-gray-50 dark:bg-gray-900 min-h-screen">{children}</main>
 
         </ThemeProvider>
       </body>
