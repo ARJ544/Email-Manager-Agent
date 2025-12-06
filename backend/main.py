@@ -1,7 +1,7 @@
 import random
 import uvicorn
 from datetime import datetime
-from fastapi import FastAPI,Request, HTTPException
+from fastapi import FastAPI,Request, HTTPException, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -114,9 +114,22 @@ def get_tokens(request: Request):
         "refresh_token": refresh_token
     }
 
+@app.post("/agent/llm")
+def get_response(request: Request, query: str = Form(...)):
+    access_token = request.cookies.get("access_token")
+
+    if not access_token:
+        raise HTTPException(status_code=500, detail="Missing access token")
+
+    input_data = {
+        "messages": [HumanMessage(content=query)],
+        "access_token": access_token
+    }
+
+    result = workflow.invoke(input_data)
+    return result
+
     
-# input_data = {"messages": [HumanMessage(content=prompt)]}
-# result = workflow.invoke(input_data)
 
 # deployment
 # uvicorn main:app --host 0.0.0.0 --port $PORT
