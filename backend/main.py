@@ -1,4 +1,6 @@
 import random
+from typing import Dict, Any
+import json
 import uvicorn, uuid
 from datetime import datetime
 from fastapi import FastAPI,Request, HTTPException, Form
@@ -10,7 +12,7 @@ from langchain_core.messages import HumanMessage
 from graph.graph import workflow
 
 app = FastAPI()
-config = {"configurable": {"thread_id": uuid.uuid4()}}
+# config = {"configurable": {"thread_id": uuid.uuid4()}}
 
 app.add_middleware(
     CORSMiddleware,
@@ -116,21 +118,27 @@ def get_tokens(request: Request):
     }
 
 @app.post("/agent/llm")
-def get_response(request: Request, query: str = Form(...)):
+def get_response(request: Request, query: str = Form(...), config: str = Form(...)):
     access_token = request.cookies.get("access_token")
 
     if not access_token:
-        raise HTTPException(status_code=500, detail="Missing access token")
+        raise HTTPException(status_code=400, detail="Missing access token")
+    
+    try:
+        config_dict = json.loads(config) if config else {}
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid config JSON")
 
     input_data = {
         "messages": [HumanMessage(content=query)],
         "access_token": access_token
     }
+    print(config)
 
-    result = workflow.invoke(input_data, config=config)
+    result = workflow.invoke(input_data, config=config_dict)
+    print(result)
     return result
 
-    
 
 # deployment
 # uvicorn main:app --host 0.0.0.0 --port $PORT
