@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+from utils import get_list_of_emails_tool as gloe
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
@@ -12,5 +13,5 @@ llm = ChatGoogleGenerativeAI(
     max_retries=0,
     google_api_key=os.getenv("GOOGLE_API_KEY"),
 )
-tools = []
+tools = [gloe.get_list_of_emails]
 llm_with_tools = llm.bind_tools(tools)
