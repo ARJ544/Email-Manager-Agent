@@ -134,10 +134,28 @@ def get_response(request: Request, query: str = Form(...), config: str = Form(..
         "access_token": access_token
     }
     print(config)
-
     result = workflow.invoke(input_data, config=config_dict)
-    print(result)
-    return result
+    print("*"*100)
+    print("Full result:", result)
+    print("*"*100)
+    messages = result.get("messages", [])
+    # print(messages)
+    last_msg = None
+    for msg in reversed(messages):
+        if msg.__class__.__name__ == "AIMessage":
+            last_msg = msg.content
+            print(last_msg)
+            return {"from": "AI","content": last_msg}
+        if msg.__class__.__name__ == "ToolMessage":
+            last_msg = msg.content
+            last_msg = last_msg.replace("'", '"')
+            last_msg = json.loads(last_msg)
+            
+            print(last_msg["messages"])
+            print(last_msg["resultSizeEstimate"])
+            
+            return {"from": "Tool","content": last_msg["messages"], "totalEmail": last_msg["resultSizeEstimate"]}
+
 
 
 # deployment
