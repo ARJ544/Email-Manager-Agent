@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import ChatUI from "@/components/my_ui/ChatUi";
 
 export default function HomePage() {
   const [tokens, setTokens] = useState<{
@@ -59,7 +61,7 @@ export default function HomePage() {
       <div className="flex flex-col items-center justify-start py-16 px-4">
         {tokens.refresh_token && tokens.access_token && (
           // Here will be chat Ui component
-          <h1>hi</h1>
+          <ChatUI/>
         )}
 
         {!loading && !tokens.refresh_token && (
@@ -69,12 +71,12 @@ export default function HomePage() {
               Authenticate Yourself First
             </h2>
 
-            <button
+            <Button
               onClick={handleGoogleLogin}
               className="px-4 py-2 h-10 font-medium rounded-xl text-white bg-black hover:bg-neutral-900 dark:text-black dark:bg-white dark:hover:bg-neutral-200 shadow-md hover:shadow-lg transition-all cursor-pointer"
             >
               Authenticate
-            </button>
+            </Button>
 
             {error && (
               <div className="mt-4 p-5 rounded-xl border border-red-300 bg-linear-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-900/10 dark:border-red-700 shadow-sm">
