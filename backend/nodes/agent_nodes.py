@@ -21,8 +21,11 @@ def call_llm_node(state: grhp.AgentState):
     messages = state["messages"]
     if not any(msg.__class__.__name__ == "SystemMessage" for msg in messages):
         messages.insert(0, system_msg)
-        
-    response = llm_with_tools.invoke(messages)
+    
+    try:
+        response = llm_with_tools.invoke(messages)
+    except Exception as e:
+        pass
     return {
         "messages": [response],
         "access_token": state["access_token"]  # KEEP TOKEN
