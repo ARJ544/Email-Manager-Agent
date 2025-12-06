@@ -33,12 +33,14 @@ export default function NavigationBar() {
                 <ModeToggle />
                 <a
                     href="https://github.com/ARJ544/Email-Manager-Agent"
+                    target="_blank"
                     className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
                 >
                     About
                 </a>
                 <a
                     href="https://github.com/ARJ544"
+                    target="_blank"
                     className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
                 >
                     Contact
