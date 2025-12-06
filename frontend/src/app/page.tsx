@@ -36,13 +36,14 @@ export default function HomePage() {
           credentials: "include",
         });
 
-        const res2 = await fetch("http://localhost:8000/auth/tokens", {
-          method: "GET",
-          credentials: "include",
-        });
+        window.location.reload();
+        // const res2 = await fetch("http://localhost:8000/auth/tokens", {
+        //   method: "GET",
+        //   credentials: "include",
+        // });
 
-        const updated = await res2.json();
-        setTokens(updated);
+        // const updated = await res2.json();
+        // setTokens(updated);
       }
     } catch (err) {
       setError(String(err))
