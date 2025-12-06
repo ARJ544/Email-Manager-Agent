@@ -1,5 +1,5 @@
 import random
-import uvicorn
+import uvicorn, uuid
 from datetime import datetime
 from fastapi import FastAPI,Request, HTTPException, Form
 from fastapi.responses import JSONResponse
@@ -10,6 +10,7 @@ from langchain_core.messages import HumanMessage
 from graph.graph import workflow
 
 app = FastAPI()
+config = {"configurable": {"thread_id": uuid.uuid4()}}
 
 app.add_middleware(
     CORSMiddleware,
@@ -126,7 +127,7 @@ def get_response(request: Request, query: str = Form(...)):
         "access_token": access_token
     }
 
-    result = workflow.invoke(input_data)
+    result = workflow.invoke(input_data, config=config)
     return result
 
     
