@@ -26,8 +26,8 @@ def call_llm_node(state: grhp.AgentState):
         response = llm_with_tools.invoke(messages)
     except Exception as e:
         response = {
-            "role": "system",
-            "content": f"LLM failed to generate a response: {str(e)}"
+            "role": "ai",
+            "content": f"LLM failed to generate a response: {str(e).strip()[:35]}."
         }
     return {
         "messages": [response],
