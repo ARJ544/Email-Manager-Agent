@@ -1,5 +1,5 @@
 """
-Utility to get date and subject of email ids from list
+Utility to get subject, date, snippet of email ids from list
 """
 import requests
 
