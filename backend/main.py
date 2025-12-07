@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from auth import generate_auth_url, exchange_code_for_tokens, refresh_access_token
+from utils import get_subject_and_date_tool as gsd
 from langchain_core.messages import HumanMessage
 from graph.graph import workflow
 
@@ -130,29 +131,34 @@ def get_response(request: Request, query: str = Form(...), config: str = Form(..
         "messages": [HumanMessage(content=query)],
         "access_token": access_token
     }
-    print(config)
+
     result = workflow.invoke(input_data, config=config_dict)
-    print("*"*100)
-    print("Full result:", result)
-    print("*"*100)
     messages = result.get("messages", [])
-    # print(messages)
-    last_msg = None
+    
+    ai_last_msg = None # Ai message
+    tool_msg = None # Tool message
+    
     for msg in reversed(messages):
         if msg.__class__.__name__ == "AIMessage":
-            last_msg = msg.content
-            print(last_msg)
-            return {"from": "AI","content": last_msg}
+            ai_last_msg = msg.content
+            
+            print(f"Input Token: {msg.usage_metadata["input_tokens"]}\nOutput Token: {msg.usage_metadata["output_tokens"]}\nTotal Token: {msg.usage_metadata["total_tokens"]}")
+            
+            return {"from": "AI","content": ai_last_msg}
+        
         if msg.__class__.__name__ == "ToolMessage":
-            last_msg = msg.content
-            last_msg = last_msg.replace("'", '"')
-            last_msg = json.loads(last_msg)
+            tool_msg = msg.content
+            tool_msg = tool_msg.replace("'", '"')
+            tool_msg = json.loads(tool_msg)
             
-            print(last_msg["messages"])
-            print(last_msg["resultSizeEstimate"])
+            ids_threadids_list = tool_msg["messages"]
+            total_emails = tool_msg["resultSizeEstimate"]
             
-            return {"from": "Tool","content": last_msg["messages"], "totalEmail": last_msg["resultSizeEstimate"]}
-
+            snippet_subject_date = gsd.get_subject_date_and_snippet(ids_threadids_list, access_token)
+            
+            print({"from": "Tool", "snippet_subject_date": snippet_subject_date, "totalEmail": total_emails})
+            
+            return {"from": "Tool", "snippet_subject_date": snippet_subject_date, "totalEmail": total_emails}
 
 
 # deployment
