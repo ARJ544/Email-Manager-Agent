@@ -135,14 +135,14 @@ def get_response(request: Request, query: str = Form(...), config: str = Form(..
     result = workflow.invoke(input_data, config=config_dict)
     messages = result.get("messages", [])
     
+    print(result)
+    
     ai_last_msg = None # Ai message
     tool_msg = None # Tool message
     
     for msg in reversed(messages):
         if msg.__class__.__name__ == "AIMessage":
             ai_last_msg = msg.content
-            
-            print(f"Input Token: {msg.usage_metadata["input_tokens"]}\nOutput Token: {msg.usage_metadata["output_tokens"]}\nTotal Token: {msg.usage_metadata["total_tokens"]}")
             
             return {"from": "AI","content": ai_last_msg}
         
