@@ -77,7 +77,7 @@ export default function ChatUI() {
                 ...prev,
                 {
                     from: "System",
-                    content: String(error) + ". Gemini overloaded. Try again later."
+                    content: String(error) + ". Refresh the site."
                 }
             ]);
 

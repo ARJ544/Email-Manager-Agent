@@ -25,7 +25,10 @@ def call_llm_node(state: grhp.AgentState):
     try:
         response = llm_with_tools.invoke(messages)
     except Exception as e:
-        pass
+        response = {
+            "role": "system",
+            "content": f"LLM failed to generate a response: {str(e)}"
+        }
     return {
         "messages": [response],
         "access_token": state["access_token"]  # KEEP TOKEN
