@@ -96,7 +96,7 @@ def refresh_access_tkn(request: Request):
 
     new_access_token = refresh_access_token(refresh_token)
 
-    response = RedirectResponse(url="http://localhost:3000/")
+    response = JSONResponse({"status": "refreshed"})
     response.set_cookie(
         key="access_token",
         value=new_access_token,
@@ -124,11 +124,8 @@ def get_response(request: Request, query: str = Form(...), config: str = Form(..
     if not access_token:
         raise HTTPException(status_code=400, detail="Missing access token")
     
-    try:
-        config_dict = json.loads(config) if config else {}
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid config JSON")
-
+    config_dict = {"configurable": { "thread_id": config }}
+    
     input_data = {
         "messages": [HumanMessage(content=query)],
         "access_token": access_token
