@@ -39,17 +39,13 @@ export default function ChatUI() {
 
     const handleGenerate = async (e: React.FormEvent) => {
         e.preventDefault();
-        const config = {
-            configurable: {
-                thread_id: threadId
-            }
-        };
+        
         if (!query.trim()) return;
 
         setIsGenerating(true);
         const formData = new FormData();
         formData.append("query", query);
-        formData.append("config", JSON.stringify(config));
+        formData.append("config", threadId);
         setQuery("");
 
 
@@ -68,6 +64,7 @@ export default function ChatUI() {
 
             if (data.from === "Tool") {
                 setToolMsg((prev) => [...prev, {from: data.from, content: data.content, totalEmail: data.totalEmail }]);
+                setThreadId(generateThreadId());
                 // console.log(ToolMsg.)
             }
 
@@ -80,6 +77,7 @@ export default function ChatUI() {
                     content: String(error) + ". Refresh the site."
                 }
             ]);
+            setThreadId(generateThreadId());
 
         } finally {
             setIsGenerating(false);
@@ -89,7 +87,7 @@ export default function ChatUI() {
 
     return (
         <div className="flex flex-col w-full max-w-xl mx-auto space-y-4">
-            <div className="chat-window flex flex-col space-y-2 border p-4 rounded-lg max-h-[60vh] overflow-y-auto">
+            <div className="flex flex-col space-y-2 border p-4 rounded-lg max-h-[50vh] overflow-y-auto">
                 {BotMsg.map((message, idx) => (
                     <div
                         key={idx}
@@ -97,6 +95,7 @@ export default function ChatUI() {
                     >
                         <div className="space-y-1">
                             {message.content}
+                            <hr className="mt-0.5 dark:bg-gray-500" />
                         </div>
                     </div>
                 ))}
@@ -118,7 +117,7 @@ export default function ChatUI() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Start typing..."
-                    className="flex-1 rounded-2xl border-2 border-gray-400 dark:bg-neutral-800 dark:border-gray-600 resize-none p-4 max-h-36 overflow-y-auto"
+                    className="flex-1 rounded-2xl border-2 border-gray-400 dark:bg-neutral-800 dark:border-gray-600 resize-none p-4 max-h-30 overflow-y-auto"
                     onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
