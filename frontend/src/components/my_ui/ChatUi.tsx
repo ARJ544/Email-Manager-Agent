@@ -48,11 +48,31 @@ export default function ChatUI() {
         content: Snippet_Subject_Date[];
         totalEmail: number;
     }[]>([]);
+    const [savedIds, setSavedIds] = useState<string[]>([]);
+    const [toBeRemovedIds, setToBeRemovedIds] = useState<string[]>([]);
+
     const chatEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [BotMsg]);
+
+    const handleSave = (id: string) => {
+        setSavedIds(prev => [...prev, id]);
+        setToBeRemovedIds(prev => prev.filter(x => x !== id));
+
+        setToolMsg(prev =>
+            prev.map(msg => {
+                const newContent = msg.content.filter(e => e.id !== id);
+                return {
+                    ...msg,
+                    content: newContent,
+                    totalEmail: newContent.length 
+                };
+            })
+        );
+    };
+
 
 
     const handleGenerate = async (e: React.FormEvent) => {
@@ -82,6 +102,9 @@ export default function ChatUI() {
 
             if (data.from === "Tool") {
                 setToolMsg([{ from: data.from, content: data.snippet_subject_date, totalEmail: data.totalEmail }]);
+                setToBeRemovedIds(data.snippet_subject_date.map((e: any) => e.id));
+                setSavedIds([]);
+
                 // setBotMsg([]);
 
                 setThreadId(generateThreadId());
@@ -104,10 +127,12 @@ export default function ChatUI() {
         }
     };
 
-
+    console.log(savedIds)
+    console.log(toBeRemovedIds)
     return (
         <div className="chat-container flex flex-col w-full max-w-5xl mx-auto space-y-4">
             <div className="flex flex-col space-y-2 border p-4 rounded-lg max-h-[50vh] overflow-y-auto bg-gray-50 border-black dark:bg-gray-800 dark:border-gray-500">
+
 
                 {ToolMsg.length === 0 ? (
 
@@ -124,9 +149,18 @@ export default function ChatUI() {
                 ) : (
 
                     <>
+                        <div className="flex justify-end mb-2">
+                            <button
+                                className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 cursor-pointer"
+                                onClick={() => console.log("you will handle this")}
+                            >
+                                Delete All
+                            </button>
+                        </div>
+
                         {ToolMsg.map((message) => (
                             <div key={message.totalEmail}>
-                                
+
                                 <div className="mb-2">
                                     <p className="text-m font-semibold text-red-800 dark:text-red-500">
                                         Total Emails Found: {message.totalEmail}
@@ -140,8 +174,11 @@ export default function ChatUI() {
                                         subject={e.subject}
                                         date={e.date}
                                         snippet={e.snippet}
+                                        onSave={handleSave}
                                     />
+
                                 ))}
+
                             </div>
                         ))}
                     </>
