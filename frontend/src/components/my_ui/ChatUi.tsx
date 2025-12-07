@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import DisplayEmail from "@/components/my_ui/EmailList"
 
 function generateThreadId(length = 20) {
     const charset = "abcdefghijklmnopqrstuvwxyz0123456789-";
@@ -12,42 +13,57 @@ function generateThreadId(length = 20) {
     }
     return result;
 }
+function renderMessageContent(content: any) {
+    // If it's a plain string
+    if (typeof content === "string") return content;
 
+    // If it's an array of message chunks
+    if (Array.isArray(content)) {
+        return content.map((chunk: any, i: number) => (
+            <p key={i}>{chunk.text || JSON.stringify(chunk)}</p>
+        ));
+    }
 
-interface ToolEmail {
+    // If it's an object with text field
+    if (content?.text) return content.text;
+
+    // Fallback
+    return JSON.stringify(content);
+}
+
+type Snippet_Subject_Date = {
     id: string;
-    threadId: string;
-}
-
-interface ToolContent {
-    messages: ToolEmail[];
-    resultSizeEstimate: number;
-}
-
-interface BotMessage {
-    type: "ai" | "tool";
-    content: string | ToolContent;
-}
+    subject: string;
+    date: string;
+    snippet: string;
+};
 
 export default function ChatUI() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [query, setQuery] = useState("");
     const [threadId, setThreadId] = useState<string>(generateThreadId());
-    const [BotMsg, setBotMsg] = useState<{from :string , content: string }[]>([]);
-    const [ToolMsg, setToolMsg] = useState<{from :string , content: string, totalEmail: string }[]>([]);
-    
+    const [BotMsg, setBotMsg] = useState<{ from: string, content: any }[]>([]);
+    const [ToolMsg, setToolMsg] = useState<{
+        from: string;
+        content: Snippet_Subject_Date[];
+        totalEmail: number;
+    }[]>([]);
+    const chatEndRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [BotMsg]);
+
 
     const handleGenerate = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!query.trim()) return;
 
         setIsGenerating(true);
         const formData = new FormData();
         formData.append("query", query);
         formData.append("config", threadId);
-        setQuery("");
-
 
         try {
             const queryResponse = await fetch("http://localhost:8000/agent/llm", {
@@ -57,15 +73,18 @@ export default function ChatUI() {
             });
 
             const data = await queryResponse.json();
+            setQuery("");
 
             if (data.from === "AI") {
-                setBotMsg((prev) => [...prev, {from: data.from, content: data.content }]);
+                setBotMsg((prev) => [...prev, { from: data.from, content: data.content }]);
+                setToolMsg([]);
             }
 
             if (data.from === "Tool") {
-                setToolMsg((prev) => [...prev, {from: data.from, content: data.content, totalEmail: data.totalEmail }]);
+                setToolMsg([{ from: data.from, content: data.snippet_subject_date, totalEmail: data.totalEmail }]);
+                // setBotMsg([]);
+
                 setThreadId(generateThreadId());
-                // console.log(ToolMsg.)
             }
 
 
@@ -77,6 +96,7 @@ export default function ChatUI() {
                     content: String(error) + ". Refresh the site."
                 }
             ]);
+            setToolMsg([]);
             setThreadId(generateThreadId());
 
         } finally {
@@ -86,30 +106,49 @@ export default function ChatUI() {
 
 
     return (
-        <div className="flex flex-col w-full max-w-xl mx-auto space-y-4">
-            <div className="flex flex-col space-y-2 border p-4 rounded-lg max-h-[50vh] overflow-y-auto">
-                {BotMsg.map((message, idx) => (
-                    <div
-                        key={idx}
-                        className={` p-2 rounded`}
-                    >
-                        <div className="space-y-1">
-                            {message.content}
-                            <hr className="mt-0.5 dark:bg-gray-500" />
-                        </div>
-                    </div>
-                ))}
-                {ToolMsg.map((message, idx) => (
-                    <div
-                        key={idx}
-                        className={` p-2 rounded`}
-                    >
-                        <div className="space-y-1">
-                            {message.content}
-                            {message.totalEmail}
-                        </div>
-                    </div>
-                ))}
+        <div className="chat-container flex flex-col w-full max-w-5xl mx-auto space-y-4">
+            <div className="flex flex-col space-y-2 border p-4 rounded-lg max-h-[50vh] overflow-y-auto bg-gray-50 border-black dark:bg-gray-800 dark:border-gray-500">
+
+                {ToolMsg.length === 0 ? (
+
+                    <>
+                        {BotMsg.map((message, idx) => (
+                            <div key={idx} className="p-2 rounded">
+                                <div className="space-y-1">
+                                    {renderMessageContent(message.content)}
+                                    <hr className="mt-0.5 dark:bg-gray-500" />
+                                </div>
+                            </div>
+                        ))}
+                    </>
+                ) : (
+
+                    <>
+                        {ToolMsg.map((message) => (
+                            <div key={message.totalEmail}>
+                                
+                                <div className="mb-2">
+                                    <p className="text-m font-semibold text-red-800 dark:text-red-500">
+                                        Total Emails Found: {message.totalEmail}
+                                    </p>
+                                </div>
+
+                                {message.content.map((e) => (
+                                    <DisplayEmail
+                                        key={e.id}
+                                        id={e.id}
+                                        subject={e.subject}
+                                        date={e.date}
+                                        snippet={e.snippet}
+                                    />
+                                ))}
+                            </div>
+                        ))}
+                    </>
+
+                )}
+                <div ref={chatEndRef} />
+
             </div>
 
             <form onSubmit={handleGenerate} className="flex gap-2 items-center">
@@ -121,7 +160,9 @@ export default function ChatUI() {
                     onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
-                            handleGenerate(e);
+                            if (isGenerating == false) {
+                                handleGenerate(e);
+                            }
                         }
                     }}
                     onInput={(e) => {
