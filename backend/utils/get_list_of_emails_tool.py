@@ -101,7 +101,7 @@ def get_list_of_emails(q: str, access_token: str):
     """
     
     url = f"https://gmail.googleapis.com/gmail/v1/users/me/messages"
-    params = {"q": q}
+    params = {"q": q, "maxResults": 500}
 
     headers = {
         "Authorization": f"Bearer {access_token}"
