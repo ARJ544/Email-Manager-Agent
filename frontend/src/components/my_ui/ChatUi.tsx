@@ -70,37 +70,50 @@ export default function ChatUI({ access_token }: Props) {
                 "TRASH"
             ]
         }
-        try {
-            setIsDeleting(true)
-            await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${access_token}`
-                },
-                body: JSON.stringify(dataToDelete)
-            });
-
+        if (toBeRemovedIds.length === 0) {
             setToolMsg([]);
             setBotMsg((prev) => [
                 ...prev,
                 {
                     from: "AI",
-                    content: "I had deleted all the selected emails. They are in your Gmail Trash. Messages that have been in Trash more than 30 days will be automatically deleted."
+                    content: "None of messages were deleted."
                 }
             ]);
-            setIsDeleting(false)
         }
+        else {
 
-        catch (error) {
-            setIsDeleting(false)
-            setBotMsg((prev) => [
-                ...prev,
-                {
-                    from: "System",
-                    content: "Error while deleting: " + String(error) + ". Query again or Refresh the site."
-                }
-            ]);
-            setToolMsg([]);
+            try {
+                setIsDeleting(true)
+                await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${access_token}`
+                    },
+                    body: JSON.stringify(dataToDelete)
+                });
+
+                setToolMsg([]);
+                setBotMsg((prev) => [
+                    ...prev,
+                    {
+                        from: "AI",
+                        content: "I had deleted all the selected emails. They are in your Gmail Trash. Messages that have been in Trash more than 30 days will be automatically deleted."
+                    }
+                ]);
+                setIsDeleting(false)
+            }
+
+            catch (error) {
+                setIsDeleting(false)
+                setBotMsg((prev) => [
+                    ...prev,
+                    {
+                        from: "System",
+                        content: "Error while deleting: " + String(error) + ". Query again or Refresh the site."
+                    }
+                ]);
+                setToolMsg([]);
+            }
         }
 
     }
