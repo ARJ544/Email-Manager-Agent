@@ -61,7 +61,7 @@ export default function HomePage() {
       <div className="flex flex-col items-center justify-start py-16 px-4">
         {tokens.refresh_token && tokens.access_token && (
           // Here will be chat Ui component
-          <ChatUI />
+          <ChatUI access_token={tokens.access_token} />
         )}
 
         {!loading && !tokens.refresh_token && (

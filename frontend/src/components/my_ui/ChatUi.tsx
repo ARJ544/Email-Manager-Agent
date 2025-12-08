@@ -3,6 +3,10 @@ import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import DisplayEmail from "@/components/my_ui/EmailList"
 
+interface Props {
+    access_token: string;
+}
+
 function generateThreadId(length = 20) {
     const charset = "abcdefghijklmnopqrstuvwxyz0123456789-";
     let result = "";
@@ -38,7 +42,7 @@ type Snippet_Subject_Date = {
     snippet: string;
 };
 
-export default function ChatUI() {
+export default function ChatUI({ access_token }: Props) {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const [isGenerating, setIsGenerating] = useState(false);
     const [query, setQuery] = useState("");
@@ -51,12 +55,55 @@ export default function ChatUI() {
     }[]>([]);
     const [savedIds, setSavedIds] = useState<string[]>([]);
     const [toBeRemovedIds, setToBeRemovedIds] = useState<string[]>([]);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const chatEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [BotMsg]);
+
+    const handleDelete = async () => {
+        const dataToDelete = {
+            "ids": toBeRemovedIds,
+            "addLabelIds": [
+                "TRASH"
+            ]
+        }
+        try {
+            setIsDeleting(true)
+            await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${access_token}`
+                },
+                body: JSON.stringify(dataToDelete)
+            });
+
+            setToolMsg([]);
+            setBotMsg((prev) => [
+                ...prev,
+                {
+                    from: "AI",
+                    content: "I had deleted all the selected emails. They are in your Gmail Trash. Messages that have been in Trash more than 30 days will be automatically deleted."
+                }
+            ]);
+            setIsDeleting(false)
+        }
+
+        catch (error) {
+            setIsDeleting(false)
+            setBotMsg((prev) => [
+                ...prev,
+                {
+                    from: "System",
+                    content: "Error while deleting: " + String(error) + ". Query again or Refresh the site."
+                }
+            ]);
+            setToolMsg([]);
+        }
+
+    }
 
     const handleSave = (id: string) => {
         setSavedIds(prev => [...prev, id]);
@@ -68,7 +115,7 @@ export default function ChatUI() {
                 return {
                     ...msg,
                     content: newContent,
-                    totalEmail: newContent.length 
+                    totalEmail: newContent.length
                 };
             })
         );
@@ -149,12 +196,13 @@ export default function ChatUI() {
 
                     <>
                         <div className="flex justify-end mb-2">
-                            <button
+                            <Button
                                 className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 cursor-pointer"
-                                onClick={() => console.log("you will handle this")}
+                                disabled={isDeleting}
+                                onClick={handleDelete}
                             >
-                                Delete All
-                            </button>
+                                {isGenerating ? "Deleting..." : "Delete All"}
+                            </Button>
                         </div>
 
                         {ToolMsg.map((message) => (
