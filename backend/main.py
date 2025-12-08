@@ -1,7 +1,5 @@
-import random
-from typing import Dict, Any
+import random, os
 import json
-import uvicorn, uuid
 from datetime import datetime
 from fastapi import FastAPI,Request, HTTPException, Form
 from fastapi.responses import JSONResponse
@@ -17,7 +15,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[os.getenv("FRONTEND_URL")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -63,7 +61,7 @@ def google_callback(request: Request):
     if tokens_expireDate_scope is None:
         raise HTTPException(status_code=400, detail="Token exchange failed")
     
-    frontend_url = "http://localhost:3000/"
+    frontend_url = os.getenv("FRONTEND_URL")
     response = RedirectResponse(url=frontend_url)
     response.set_cookie(
         key="access_token",
@@ -79,7 +77,7 @@ def google_callback(request: Request):
         response.set_cookie(
             key="refresh_token",
             value=tokens_expireDate_scope["refresh_token"],
-            httponly=True,
+            httponly=True, # True in production with HTTPS
             secure=False,
             max_age=7*24*3600,  # 30 days
             samesite="lax",
@@ -102,7 +100,7 @@ def refresh_access_tkn(request: Request):
         key="access_token",
         value=new_access_token,
         httponly=True,
-        secure=False,  # True in production
+        secure=False,  # True in production with HTTPS
         max_age=3600,
         samesite="lax",
     )
