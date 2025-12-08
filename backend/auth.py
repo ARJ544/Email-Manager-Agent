@@ -63,7 +63,7 @@ def refresh_access_token(refresh_token: str):
         client_id=os.getenv("GOOGLE_CLIENT_ID"),
         client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
         token_uri="https://oauth2.googleapis.com/token",
-        scopes=[os.getenv("GOOGLE_SCOPES")]
+        scopes=SCOPES
     )
 
     creds.refresh(Request())
