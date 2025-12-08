@@ -149,7 +149,7 @@ def get_response(request: Request, query: str = Form(...), config: str = Form(..
             tool_msg = tool_msg.replace("'", '"')
             tool_msg = json.loads(tool_msg)
             
-            ids_threadids_list = tool_msg["messages"]
+            ids_threadids_list = tool_msg.get("messages", [])
             total_emails = tool_msg["resultSizeEstimate"]
             
             snippet_subject_date = gsd.get_subject_date_and_snippet(ids_threadids_list, access_token)
