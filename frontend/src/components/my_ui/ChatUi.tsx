@@ -173,8 +173,8 @@ export default function ChatUI({ access_token }: Props) {
         }
     };
 
-    console.log(savedIds)
-    console.log(toBeRemovedIds)
+    // console.log(savedIds)
+    // console.log(toBeRemovedIds)
     return (
         <div className="chat-container flex flex-col w-full max-w-5xl mx-auto space-y-4">
             <div className="flex flex-col space-y-2 border p-4 rounded-lg max-h-[50vh] overflow-y-auto bg-gray-50 border-black dark:bg-gray-800 dark:border-gray-500">
