@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 import os
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
-GLOBAL_ACCESS_TOKEN = None
 
 load_dotenv()
 
