@@ -16,13 +16,19 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  if (!backendUrl) {
+    console.error("NEXT_PUBLIC_BACKEND_URL is missing.");
+    return;
+  }
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8000/auth/google/login";
+    window.location.href = `${backendUrl}/auth/google/login`;
   };
 
   const loadTokens = async () => {
     try {
-      const res = await fetch("http://localhost:8000/auth/tokens", {
+      const res = await fetch(`${backendUrl}/auth/tokens`, {
         method: "GET",
         credentials: "include",
       });
@@ -31,19 +37,12 @@ export default function HomePage() {
       setTokens(data);
 
       if (data.refresh_token && !data.access_token) {
-        await fetch("http://localhost:8000/auth/refreshaccesstoken", {
+        await fetch(`${backendUrl}/auth/refreshaccesstoken`, {
           method: "GET",
           credentials: "include",
         });
 
         window.location.reload();
-        // const res2 = await fetch("http://localhost:8000/auth/tokens", {
-        //   method: "GET",
-        //   credentials: "include",
-        // });
-
-        // const updated = await res2.json();
-        // setTokens(updated);
       }
     } catch (err) {
       setError(String(err))
@@ -62,7 +61,7 @@ export default function HomePage() {
       <div className="flex flex-col items-center justify-start py-16 px-4">
         {tokens.refresh_token && tokens.access_token && (
           // Here will be chat Ui component
-          <ChatUI/>
+          <ChatUI />
         )}
 
         {!loading && !tokens.refresh_token && (

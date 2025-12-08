@@ -39,6 +39,7 @@ type Snippet_Subject_Date = {
 };
 
 export default function ChatUI() {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const [isGenerating, setIsGenerating] = useState(false);
     const [query, setQuery] = useState("");
     const [threadId, setThreadId] = useState<string>(generateThreadId());
@@ -73,8 +74,6 @@ export default function ChatUI() {
         );
     };
 
-
-
     const handleGenerate = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -86,7 +85,7 @@ export default function ChatUI() {
         formData.append("config", threadId);
 
         try {
-            const queryResponse = await fetch("http://localhost:8000/agent/llm", {
+            const queryResponse = await fetch(`${backendUrl}/agent/llm`, {
                 method: "POST",
                 credentials: "include",
                 body: formData,
