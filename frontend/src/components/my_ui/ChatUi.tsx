@@ -201,7 +201,7 @@ export default function ChatUI({ access_token }: Props) {
                                 disabled={isDeleting}
                                 onClick={handleDelete}
                             >
-                                {isGenerating ? "Deleting..." : "Delete All"}
+                                {isDeleting ? "Deleting..." : "Delete All"}
                             </Button>
                         </div>
 
