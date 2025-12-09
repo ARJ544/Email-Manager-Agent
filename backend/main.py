@@ -67,7 +67,7 @@ def google_callback(request: Request):
         key="access_token",
         value=tokens_expireDate_scope["access_token"],
         httponly=True,
-        secure=False,  # True in production with HTTPS
+        secure=True,  # True in production with HTTPS
         max_age=3600,  # 1 hour
         samesite="lax",
     )
@@ -77,8 +77,8 @@ def google_callback(request: Request):
         response.set_cookie(
             key="refresh_token",
             value=tokens_expireDate_scope["refresh_token"],
-            httponly=True, # True in production with HTTPS
-            secure=False,
+            httponly=True,
+            secure=True, # True in production with HTTPS
             max_age=7*24*3600,  # 30 days
             samesite="lax",
         )
@@ -100,7 +100,7 @@ def refresh_access_tkn(request: Request):
         key="access_token",
         value=new_access_token,
         httponly=True,
-        secure=False,  # True in production with HTTPS
+        secure=True,  # True in production with HTTPS
         max_age=3600,
         samesite="lax",
     )
@@ -111,6 +111,8 @@ def get_tokens(request: Request):
     """Endpoint to read tokens from cookies and send them to frontend safely."""
     access_token = request.cookies.get("access_token")
     refresh_token = request.cookies.get("refresh_token")
+    # print(access_token)
+    # print(refresh_token)
     return {
         "access_token": access_token,
         "refresh_token": refresh_token
