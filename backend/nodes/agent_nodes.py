@@ -1,9 +1,7 @@
-from langgraph.graph import MessagesState
 from langchain_core.messages import SystemMessage, ToolMessage, AIMessage
 from config_llm import llm_with_tools
 from utils import get_list_of_emails_tool as gloe
-import graph.graph as grhp
-from langchain_core.messages import BaseMessage
+from graphState.Agentstate import AgentState
 
 
 system_msg = SystemMessage(content=
@@ -16,7 +14,7 @@ system_msg = SystemMessage(content=
     "Never ask the user for access_token or credentials."
 )
 
-def call_llm_node(state: grhp.AgentState):
+def call_llm_node(state: AgentState):
     
     messages = state["messages"]
     if not any(msg.__class__.__name__ == "SystemMessage" for msg in messages):
@@ -35,7 +33,7 @@ def call_llm_node(state: grhp.AgentState):
     }
 
 
-def execute_tool_calls_node(state: grhp.AgentState):
+def execute_tool_calls_node(state: AgentState):
     """
     Executes all tool calls from the last message dynamically.
 
@@ -76,7 +74,7 @@ def execute_tool_calls_node(state: grhp.AgentState):
         "access_token": state["access_token"]  # KEEP TOKEN
     }
 
-def should_call_tools(state: grhp.AgentState):
+def should_call_tools(state: AgentState):
     last_message = state["messages"][-1]
     if isinstance(last_message, AIMessage) and last_message.tool_calls:
         return "tools"

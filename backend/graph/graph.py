@@ -1,12 +1,7 @@
-from langgraph.graph import StateGraph, add_messages ,MessagesState, START, END
+from langgraph.graph import StateGraph, START, END
 from nodes.agent_nodes import call_llm_node, execute_tool_calls_node, should_call_tools
-from typing import TypedDict, List, Annotated
-from langchain_core.messages import BaseMessage
+from graphState.Agentstate import AgentState
 from langgraph.checkpoint.memory import MemorySaver
-
-class AgentState(TypedDict):
-    messages: Annotated[list[BaseMessage], add_messages]
-    access_token: str
 
 graph = StateGraph(AgentState)
 graph.add_node("llm_node", call_llm_node)
