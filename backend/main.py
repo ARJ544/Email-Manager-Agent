@@ -69,7 +69,7 @@ def google_callback(request: Request):
         httponly=True,
         secure=True,  # True in production with HTTPS
         max_age=3600,  # 1 hour
-        samesite="lax",
+        samesite="none",
     )
 
 
@@ -80,7 +80,7 @@ def google_callback(request: Request):
             httponly=True,
             secure=True, # True in production with HTTPS
             max_age=7*24*3600,  # 30 days
-            samesite="lax",
+            samesite="none",
         )
 
     return response
@@ -102,7 +102,7 @@ def refresh_access_tkn(request: Request):
         httponly=True,
         secure=True,  # True in production with HTTPS
         max_age=3600,
-        samesite="lax",
+        samesite="none",
     )
     return response
 
