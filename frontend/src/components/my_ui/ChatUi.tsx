@@ -49,10 +49,10 @@ export default function ChatUI({ access_token }: Props) {
     const [threadId, setThreadId] = useState<string>(generateThreadId());
     const [BotMsg, setBotMsg] = useState<{ from: string, content: any }[]>([]);
     const [ToolMsg, setToolMsg] = useState<{
-        from: string;
-        content: Snippet_Subject_Date[];
-        totalEmail: number;
-    }[]>([]);
+    from: string;
+    content: Snippet_Subject_Date[];
+    totalEmail: number;
+    } | null>(null);
     const [savedIds, setSavedIds] = useState<string[]>([]);
     const [toBeRemovedIds, setToBeRemovedIds] = useState<string[]>([]);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -71,7 +71,7 @@ export default function ChatUI({ access_token }: Props) {
             ]
         }
         if (toBeRemovedIds.length === 0) {
-            setToolMsg([]);
+            setToolMsg(null);
             setBotMsg((prev) => [
                 ...prev,
                 {
@@ -92,7 +92,7 @@ export default function ChatUI({ access_token }: Props) {
                     body: JSON.stringify(dataToDelete)
                 });
 
-                setToolMsg([]);
+                setToolMsg(null);
                 setBotMsg((prev) => [
                     ...prev,
                     {
@@ -112,7 +112,7 @@ export default function ChatUI({ access_token }: Props) {
                         content: "Error while deleting: " + String(error) + ". Query again or Refresh the site."
                     }
                 ]);
-                setToolMsg([]);
+                setToolMsg(null);
             }
         }
 
@@ -121,17 +121,15 @@ export default function ChatUI({ access_token }: Props) {
     const handleSave = (id: string) => {
         setSavedIds(prev => [...prev, id]);
         setToBeRemovedIds(prev => prev.filter(x => x !== id));
-
-        setToolMsg(prev =>
-            prev.map(msg => {
-                const newContent = msg.content.filter(e => e.id !== id);
-                return {
-                    ...msg,
-                    content: newContent,
-                    totalEmail: newContent.length
-                };
-            })
-        );
+        setToolMsg(prev => {
+            if (!prev) return prev;
+            const newContent = prev.content.filter(e => e.id !== id);
+            return {
+                ...prev,
+                content: newContent,
+                totalEmail: newContent.length,
+            };
+        });
     };
 
     const handleGenerate = async (e: React.FormEvent) => {
@@ -156,18 +154,20 @@ export default function ChatUI({ access_token }: Props) {
 
             if (data.from === "AI") {
                 setBotMsg((prev) => [...prev, { from: data.from, content: data.content }]);
-                setToolMsg([]);
+                setToolMsg(null);
             }
-
+            
             if (data.from === "Tool") {
-                setToolMsg([{ from: data.from, content: data.snippet_subject_date, totalEmail: data.totalEmail }]);
+                setToolMsg({
+                    from: data.from,
+                    content: data.snippet_subject_date,
+                    totalEmail: data.totalEmail
+                });
                 setToBeRemovedIds(data.snippet_subject_date.map((e: any) => e.id));
                 setSavedIds([]);
-
-                // setBotMsg([]);
-
                 setThreadId(generateThreadId());
             }
+
 
 
         } catch (error) {
@@ -178,7 +178,7 @@ export default function ChatUI({ access_token }: Props) {
                     content: String(error) + ". Refresh the site."
                 }
             ]);
-            setToolMsg([]);
+            setToolMsg(null);
             setThreadId(generateThreadId());
 
         } finally {
@@ -193,8 +193,7 @@ export default function ChatUI({ access_token }: Props) {
             <div className="flex flex-col space-y-2 border p-4 rounded-lg max-h-[50vh] overflow-y-auto bg-gray-50 border-black dark:bg-gray-800 dark:border-gray-500">
 
 
-                {ToolMsg.length === 0 ? (
-
+                {!ToolMsg ? (
                     <>
                         {BotMsg.map((message, idx) => (
                             <div key={idx} className="p-2 rounded">
@@ -218,29 +217,26 @@ export default function ChatUI({ access_token }: Props) {
                             </Button>
                         </div>
 
-                        {ToolMsg.map((message) => (
-                            <div key={message.totalEmail}>
-
-                                <div className="mb-2">
-                                    <p className="text-m font-semibold text-red-800 dark:text-red-500">
-                                        Total Emails Found: {message.totalEmail}
-                                    </p>
-                                </div>
-
-                                {message.content.map((e) => (
-                                    <DisplayEmail
-                                        key={e.id}
-                                        id={e.id}
-                                        subject={e.subject}
-                                        date={e.date}
-                                        snippet={e.snippet}
-                                        onSave={handleSave}
-                                    />
-
-                                ))}
-
+                        <div key={ToolMsg.totalEmail}>
+                    
+                            <div className="mb-2">
+                                <p className="text-m font-semibold text-red-800 dark:text-red-500">
+                                    Total Emails Found: {ToolMsg.totalEmail}
+                                </p>
                             </div>
-                        ))}
+                    
+                            {ToolMsg.content.map((e) => (
+                                <DisplayEmail
+                                    key={e.id}
+                                    id={e.id}
+                                    subject={e.subject}
+                                    date={e.date}
+                                    snippet={e.snippet}
+                                    onSave={handleSave}
+                                />
+                            ))}
+                    
+                        </div>
                     </>
 
                 )}
